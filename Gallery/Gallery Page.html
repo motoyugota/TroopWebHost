@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <title>Photos & Videos</title>
+  <script src="https://cdn.jsdelivr.net/npm/handlebars@latest/dist/handlebars.js"></script>
+  <script>
+    var jsonUrl = '[JsonFileUrl]';
+  </script>
+  <script>
+    // compile the template
+    var template = Handlebars.compile("Handlebars <b>{{doesWhat}}</b>");
+  </script>
+  <style>
+    .img-responsive {
+      max-width: 300px;
+    }
+
+    .gallery {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin: 0;
+      padding: 0;
+      justify-content: center;
+    }
+
+    .gallery h3 {
+      font-size: medium;
+    }
+
+    .gallery a {
+      color: black;
+      align-items: center;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .gallery li {
+      list-style: none;
+    }
+
+    .gallery li {
+      text-align: center;
+      list-style: none;
+    }
+  </style>
+</head>
+
+<body>
+  <script id="entry-template" type="text/x-handlebars-template">
+    <ul class="gallery">
+      {{#each albums}}
+        <li>
+          <a href="{{shareUrl}}" target="_blank">
+            <h3>{{title}}</h3>
+            <img class="img-responsive" src="{{coverPhotoBaseUrl}}"/>
+          </a>
+        </li>
+      {{/each}}
+    </ul>
+  </script>
+
+  <div id="container"></div>
+
+  <script>
+    var galleries = {};
+    var getJSON = function (url, callback) {
+      var xhr = new XMLHttpRequest();
+      xhr.open('GET', url, true);
+      xhr.responseType = 'json';
+      xhr.onload = function () {
+        var status = xhr.status;
+        if (status === 200) {
+          callback(null, xhr.response);
+        } else {
+          callback(status, xhr.response);
+        }
+      };
+      xhr.send();
+    };
+
+    var source = document.getElementById("entry-template").innerHTML;
+    var template = Handlebars.compile(source);
+
+    getJSON(jsonUrl,
+      function (err, data) {
+        if (err !== null) {
+          alert('Something went wrong: ' + err);
+        } else {
+          galleries = data;
+          document.getElementById("container").innerHTML = template(galleries);
+        }
+      });
+
+  </script>
+</body>
+
+</html>

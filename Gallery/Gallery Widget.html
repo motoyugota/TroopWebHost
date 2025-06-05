@@ -1,0 +1,94 @@
+<script src="https://cdn.jsdelivr.net/npm/handlebars@latest/dist/handlebars.js"></script>
+<script>
+  var jsonUrl = '[JsonFileUrl]';
+  var viewAllUrl = '[ViewAllUrl]';
+  var albumCount = 4;
+</script>
+<style>
+.gallery {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin: 0;
+  padding: 0;
+  justify-content: center;
+}
+
+.gallery h3 {
+  font-size: medium;
+}
+
+.gallery a {
+  color: black;
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+}
+
+.gallery li {
+  list-style: none;
+}
+</style>
+<script id="entry-template" type="text/x-handlebars-template">
+<ul class="gallery">
+	{{#each albums}}
+    {{#displayPreview @index}}
+      <li>
+        <a href="{{shareUrl}}" target="_blank">
+          <h4>{{title}}</h4>
+          <img class="img-responsive" src="{{coverPhotoBaseUrl}}"/>
+        </a>
+      </li>
+    {{/displayPreview}}
+  {{/each}}
+</ul>
+</script>
+
+<h3>Photos & Videos</h3>
+
+<div class="links" style="text-align: center;">
+  <a href="" id="viewAll">View All Galleries</a>
+</div>
+
+<div id="container"></div>
+
+<script>
+  var galleries = {};
+  var getJSON = function(url, callback) {
+    var xhr = new XMLHttpRequest();
+    xhr.open('GET', url, true);
+    xhr.responseType = 'json';
+    xhr.onload = function() {
+      var status = xhr.status;
+      if (status === 200) {
+        callback(null, xhr.response);
+      } else {
+        callback(status, xhr.response);
+      }
+    };
+    xhr.send();
+  };
+
+  Handlebars.registerHelper('displayPreview', function (value, options) {
+    if (value < albumCount) {
+        return options.fn(this);
+    }
+    return options.inverse(this);
+  });
+
+  var source = document.getElementById("entry-template").innerHTML;
+  var template = Handlebars.compile(source);
+  
+  document.getElementById("viewAll").setAttribute("href", viewAllUrl);
+
+  getJSON(jsonUrl,
+  function(err, data) {
+    if (err !== null) {
+    } else {
+      galleries = data;
+      document.getElementById("container").innerHTML = template(galleries);
+    }
+  });
+  
+
+</script>
